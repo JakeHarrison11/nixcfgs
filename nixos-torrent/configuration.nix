@@ -21,7 +21,19 @@
   networking.hostName = "nixos-torrent"; # Define your hostname.
   # Pick only one of the below networking options.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-  networking.networkmanager.enable = true;  # Easiest to use and most distros use this by default.
+  # networking.networkmanager.enable = true;  # Easiest to use and most distros use this by default.
+  networking.interfaces.ens18 = {
+    useDHCP = false;
+    ipv4.addresses = [
+      {
+        address = "10.10.0.103";
+        prefixLength = 24;
+      }
+    ];
+  };
+
+  networking.defaultGateway = "10.10.0.1";
+  networking.nameservers = [ "10.10.0.1" "8.8.8.8" ];
 
   # Set your time zone.
   time.timeZone = "America/New_York";
@@ -107,7 +119,7 @@
 
   # Mount the NFS share
   fileSystems."/mnt/data" = {
-    device = "10.127.23.231:/mnt/data";  # IP and export path
+    device = "10.10.0.105:/mnt/data";  # IP and export path
     fsType = "nfs";
     options = [ "rw" "vers=4" ]; # Adjust options as needed
   };
