@@ -27,28 +27,33 @@ main() {
     echo "[INFO] Cloning repo to $TMPDIR"
     git clone "$GIT_REPO" "$TMPDIR"
 
-    # Verify hostname folder exists in the repo
-    if [ ! -d "$TMPDIR/$HOSTNAME" ]; then
+    # Path to host-specific config in the repo
+    HOSTCFG="$TMPDIR/$HOSTNAME"
+
+    # Verify hostname folder exists
+    if [ ! -d "$HOSTCFG" ]; then
         echo "[ERROR] No config folder found for hostname '$HOSTNAME' in the repo."
         exit 1
     fi
 
-    # Copy files to /etc/nixos (backup first if needed)
-    echo "[INFO] Copying config from $TMPDIR/$HOSTNAME to /etc/nixos/"
-    cp -rT "$TMPDIR/$HOSTNAME" /etc/nixos/
+    # === Convert docker-compose.yml to docker-compose.nix if it exists ===
+    if [ -f "$HOSTCFG/docker-compose.yml" ]; then
+        echo "[INFO] Detected docker-compose.yml in host config. Converting..."
 
-    # === If docker-compose.yml exists, run compose2nix ===
-    if [ -f "/etc/nixos/docker-compose.yml" ]; then
-        echo "[INFO] Detected docker-compose.yml. Converting to Nix..."
         if ! command -v compose2nix &>/dev/null; then
-            echo "[ERROR] compose2nix is not installed. Install it with 'nix-shell -p compose2nix'"
+            echo "[ERROR] compose2nix is not installed. Run: nix-shell -p compose2nix"
             exit 1
         fi
 
-        compose2nix /etc/nixos/docker-compose.yml > /etc/nixos/docker-compose.nix
-        rm /etc/nixos/docker-compose.yml
-        echo "[INFO] Converted and replaced docker-compose.yml with docker-compose.nix"
+        compose2nix "$HOSTCFG/docker-compose.yml" > "$HOSTCFG/docker-compose.nix"
+        rm "$HOSTCFG/docker-compose.yml"
+
+        echo "[INFO] Converted to docker-compose.nix in temp dir."
     fi
+
+    # === Copy host config to /etc/nixos ===
+    echo "[INFO] Copying config from $HOSTCFG to /etc/nixos/"
+    cp -rT "$HOSTCFG" /etc/nixos/
 
     # Apply system config
     echo "[INFO] Applying configuration..."
