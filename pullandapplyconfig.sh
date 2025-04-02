@@ -45,10 +45,12 @@ main() {
             exit 1
         fi
 
-        compose2nix "$HOSTCFG/docker-compose.yml" > "$HOSTCFG/docker-compose.nix"
-        rm "$HOSTCFG/docker-compose.yml"
+        pushd "$HOSTCFG" > /dev/null
+        compose2nix > docker-compose.nix
+        rm docker-compose.yml
+        popd > /dev/null
 
-        echo "[INFO] Converted to docker-compose.nix in temp dir."
+        echo "[INFO] Converted to docker-compose.nix"
     fi
 
     # === Copy host config to /etc/nixos ===
