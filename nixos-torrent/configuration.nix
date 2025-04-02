@@ -71,13 +71,47 @@
     ];
     openssh.authorizedKeys.keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJpTxqLOvSljzM4m5GpHGKIZ5tApzJjo7U1YL1+3KpWY jake@Jakes-MacBook-Air-4.local" ];
   };
-
+  
   # programs.firefox.enable = true;
 
   # Custom congfig goes here
 
   services.qemuGuest.enable = true;
   services.mullvad-vpn.enable = true;
+
+  # Create a user for the service (optional but recommended)
+  users.users.qbt = {
+    isSystemUser = true;
+    home = "/var/lib/qbt";
+    createHome = true;
+    group = "qbt";
+  };
+
+  users.groups.qbt = {};
+
+  # Create a systemd service for qbittorrent-nox
+  systemd.services.qbittorrent-nox = {
+    description = "qBittorrent-nox headless service";
+    after = [ "network.target" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      ExecStart = "${pkgs.qbittorrent-nox}/bin/qbittorrent-nox --profile=/var/lib/qbt";
+      User = "qbt";
+      Group = "qbt";
+      Restart = "on-failure";
+    };
+  };
+
+  # Make sure NFS client support is enabled
+  boot.supportedFilesystems = [ "nfs" ];
+
+  # Mount the NFS share
+  fileSystems."/mnt/data" = {
+    device = "10.127.23.231:/mnt/data";  # IP and export path
+    fsType = "nfs";
+    options = [ "rw" "vers=4" ]; # Adjust options as needed
+  };
+
 
 
   # List packages installed in system profile. To search, run:
@@ -86,8 +120,9 @@
     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     wget
     nano
-    qbittorrent
+    qbittorrent-nox
     mullvad-vpn
+    git
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
