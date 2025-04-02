@@ -46,7 +46,7 @@ main() {
         fi
 
         pushd "$HOSTCFG" > /dev/null
-        compose2nix > docker-compose.nix
+        compose2nix --runtime docker > docker-compose.nix
         rm docker-compose.yml
         popd > /dev/null
 
