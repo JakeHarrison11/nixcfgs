@@ -14,7 +14,7 @@ require_root() {
 # === Function: Main ===
 main() {
     # Set your Git repo URL here
-    GIT_REPO="git@github.com:yourusername/nixos-configs.git"
+    GIT_REPO="git@github.com:JakeHarrison11/nixcfgs.git"
 
     # Get hostname
     HOSTNAME=$(hostname)
