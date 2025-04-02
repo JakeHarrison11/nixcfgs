@@ -88,6 +88,7 @@
     wget
     nano
     git
+    compose2nix
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
