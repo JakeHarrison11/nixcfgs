@@ -1,0 +1,16 @@
+name: nixdockerhost
+
+services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: always
+    ports:
+      - "9000:9000"         # Portainer Web UI
+      - "8000:8000"         # Portainer Edge agent port (optional)
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  # Allows Portainer to control Docker
+      - portainer_data:/data                       # Persistent config/data storage
+
+volumes:
+  portainer_data:

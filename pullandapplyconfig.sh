@@ -37,7 +37,20 @@ main() {
     echo "[INFO] Copying config from $TMPDIR/$HOSTNAME to /etc/nixos/"
     cp -rT "$TMPDIR/$HOSTNAME" /etc/nixos/
 
-    # Optional: show diff?
+    # === If docker-compose.yml exists, run compose2nix ===
+    if [ -f "/etc/nixos/docker-compose.yml" ]; then
+        echo "[INFO] Detected docker-compose.yml. Converting to Nix..."
+        if ! command -v compose2nix &>/dev/null; then
+            echo "[ERROR] compose2nix is not installed. Install it with 'nix-shell -p compose2nix'"
+            exit 1
+        fi
+
+        compose2nix /etc/nixos/docker-compose.yml > /etc/nixos/docker-compose.nix
+        rm /etc/nixos/docker-compose.yml
+        echo "[INFO] Converted and replaced docker-compose.yml with docker-compose.nix"
+    fi
+
+    # Apply system config
     echo "[INFO] Applying configuration..."
     nixos-rebuild switch
 
