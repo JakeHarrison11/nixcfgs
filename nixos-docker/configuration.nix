@@ -23,12 +23,18 @@
   # Pick only one of the below networking options.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
   # networking.networkmanager.enable = true;  # Easiest to use and most distros use this by default.
-  networking.interfaces.ens18.ipv4.addresses = [ {
-    address = "10.10.0.103";
-    prefixLength = 24;
-  } ];
+  networking.interfaces.ens18 = {
+    useDHCP = false;
+    ipv4.addresses = [
+      {
+        address = "10.10.0.103";
+        prefixLength = 24;
+      }
+    ];
+  };
+
   networking.defaultGateway = "10.10.0.1";
-  networking.nameservers = [ "10.10.0.1 " ];
+  networking.nameservers = [ "10.10.0.1" "8.8.8.8" ];
 
   # Set your time zone.
   time.timeZone = "America/New_York";
